@@ -9,6 +9,7 @@ verify_ssl = true
 sendsms = "*"
 twilio = "*"
 flask = "*"
+gunicorn = "*"
 
 [requires]
 python_version = "3.7"

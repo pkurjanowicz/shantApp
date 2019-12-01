@@ -4,11 +4,10 @@ import datetime
 
 app = Flask(__name__)
 
-shants_num = '+18186068167'
 last_poop_date = ''
 
 def verify_shant(number):
-    if number == '+12032312081':
+    if number == '+12032312081' or number == "+18186068167":
         return True
     return False
 
