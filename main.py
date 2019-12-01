@@ -1,10 +1,20 @@
 from flask import Flask, request, render_template
 from twilio.twiml.messaging_response import MessagingResponse
 import datetime
+from models import Messages
+import os
+from db_instance import db
+import psycopg2
+from models import Messages
 
 app = Flask(__name__)
 
-last_poop_date = ''
+def last_poop_date():
+    last_poop_date = Messages.query.filter_by(pooper_name='Shant').all()
+    poop_item_list =  [poop_date.poop_date for poop_date in last_poop_date]
+    last_poop_date = poop_item_list[-1]
+    return last_poop_date
+
 
 def verify_shant(number):
     if number == '+12032312081' or number == "+18186068167":
@@ -14,8 +24,7 @@ def verify_shant(number):
 def update_status():
     time_object = datetime.datetime.today()
     date_today = '{}-{}-{}'.format(time_object.month,time_object.day,time_object.year)
-    global last_poop_date
-    if date_today != last_poop_date:
+    if date_today != last_poop_date():
         return 'No'
     return 'Yes!'
 
@@ -23,8 +32,8 @@ def update_status():
 def render_app():
     has_shant_pooped = update_status()
     if has_shant_pooped == 'Yes!':
-        return render_template('index.html', message='Yes', last_poop_date=last_poop_date)
-    return render_template('index.html', message="No", last_poop_date=last_poop_date)
+        return render_template('index.html', message='Yes', last_poop_date=last_poop_date())
+    return render_template('index.html', message="No", last_poop_date=last_poop_date())
 
 @app.route("/sms", methods=['GET'])
 def sms_ahoy_reply():
@@ -35,8 +44,9 @@ def sms_ahoy_reply():
         resp.message("Thanks for updating your pooping status")
         time_object = datetime.datetime.today()
         date_today = '{}-{}-{}'.format(time_object.month,time_object.day,time_object.year)
-        global last_poop_date
-        last_poop_date = date_today
+        new_poop = Messages(pooper_name='Shant',poop_date=date_today)
+        db.session.add(new_poop)
+        db.session.commit()
         return str(resp)
     return 'Falure'
 
@@ -63,6 +73,10 @@ def sms_ahoy_reply():
     &ApiVersion=2010-04-01
     """
 
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql+psycopg2://{user}:{pw}@{url}/{db}".format(user=os.environ["DB_USER"],pw=os.environ["DB_PASS"],url=os.environ["DB_URL"],db=os.environ["DB_NAME"])
+with app.app_context():
+    db.init_app(app)
+    db.create_all()
 
 
 if __name__ == "__main__":
