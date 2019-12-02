@@ -18,22 +18,20 @@ def last_poop_date():
 
 def verify_shant(number):
     if number == '+12032312081' or number == "+18186068167":
-        return True
-    return False
+        return False
+    return True
 
 def update_status():
     time_object = datetime.datetime.today()
     date_today = '{}-{}-{}'.format(time_object.month,time_object.day,time_object.year)
-    print(date_today)
-    print(last_poop_date())
     if date_today != last_poop_date():
-        return 'No'
-    return 'Yes!'
+        return False
+    return True
 
 @app.route('/', methods=['GET'])
 def render_app():
     has_shant_pooped = update_status()
-    if has_shant_pooped == 'Yes!':
+    if has_shant_pooped == True:
         return render_template('index.html', message='Yes', last_poop_date=last_poop_date())
     return render_template('index.html', message="No", last_poop_date=last_poop_date())
 
