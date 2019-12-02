@@ -31,9 +31,11 @@ def update_status():
 @app.route('/', methods=['GET'])
 def render_app():
     has_shant_pooped = update_status()
+    time_object = datetime.datetime.today()
+    date_today = '{}-{}-{}'.format(time_object.month,time_object.day,time_object.year)
     if has_shant_pooped == True:
-        return render_template('index.html', message='Yes', last_poop_date=last_poop_date())
-    return render_template('index.html', message="No", last_poop_date=last_poop_date())
+        return render_template('index.html', message='Yes', last_poop_date=last_poop_date(), date_today=date_today)
+    return render_template('index.html', message="No", last_poop_date=last_poop_date(), date_today=date_today)
 
 @app.route("/sms", methods=['GET'])
 def sms_ahoy_reply():
