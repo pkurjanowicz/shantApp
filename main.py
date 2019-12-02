@@ -6,6 +6,8 @@ import os
 from db_instance import db
 import psycopg2
 from models import Messages
+import pytz
+from pytz import timezone
 
 app = Flask(__name__)
 
@@ -22,8 +24,12 @@ def verify_shant(number):
     return False
 
 def update_status():
-    time_object = datetime.datetime.now()
-    date_today = '{}-{}-{}'.format(time_object.month,time_object.day,time_object.year)
+    # time_object = datetime.datetime.now(pytz.utc)
+    # date_today = '{}-{}-{}'.format(time_object.month,time_object.day,time_object.year)
+    date_format='%m-%d-%Y'
+    date = datetime.datetime.now(tz=pytz.utc)
+    date = date.astimezone(timezone('US/Pacific'))
+    date_today = date.strftime(date_format)
     if date_today != last_poop_date():
         return False
     return True
@@ -31,11 +37,9 @@ def update_status():
 @app.route('/', methods=['GET'])
 def render_app():
     has_shant_pooped = update_status()
-    time_object = datetime.datetime.now()
-    date_today = '{}-{}-{}'.format(time_object.month,time_object.day,time_object.year)
     if has_shant_pooped == True:
-        return render_template('index.html', message='Yes', last_poop_date=last_poop_date(), date_today=date_today)
-    return render_template('index.html', message="No", last_poop_date=last_poop_date(), date_today=date_today)
+        return render_template('index.html', message='Yes', last_poop_date=last_poop_date())
+    return render_template('index.html', message="No", last_poop_date=last_poop_date())
 
 @app.route("/sms", methods=['GET'])
 def sms_ahoy_reply():
@@ -44,8 +48,10 @@ def sms_ahoy_reply():
     if verify_shant(number):
         resp = MessagingResponse()
         resp.message("Thanks for updating your pooping status")
-        time_object = datetime.datetime.today()
-        date_today = '{}-{}-{}'.format(time_object.month,time_object.day,time_object.year)
+        date_format='%m-%d-%Y'
+        date = datetime.datetime.now(tz=pytz.utc)
+        date = date.astimezone(timezone('US/Pacific'))
+        date_today = date.strftime(date_format)
         new_poop = Messages(pooper_name='Shant',poop_date=date_today)
         db.session.add(new_poop)
         db.session.commit()
