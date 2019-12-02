@@ -25,8 +25,8 @@ def update_status():
     time_object = datetime.datetime.today()
     date_today = '{}-{}-{}'.format(time_object.month,time_object.day,time_object.year)
     if date_today != last_poop_date():
-        return True
-    return False
+        return False
+    return True
 
 @app.route('/', methods=['GET'])
 def render_app():
