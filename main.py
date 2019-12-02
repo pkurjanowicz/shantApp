@@ -24,6 +24,8 @@ def verify_shant(number):
 def update_status():
     time_object = datetime.datetime.today()
     date_today = '{}-{}-{}'.format(time_object.month,time_object.day,time_object.year)
+    print(date_today)
+    print(last_poop_date())
     if date_today != last_poop_date():
         return 'No'
     return 'Yes!'
