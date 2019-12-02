@@ -18,8 +18,8 @@ def last_poop_date():
     return last_poop_date
 
 def poop_message():
-    message = Messages.query.filter_by(pooper_name='Shant').all()
-    poop_item_list =  [poop_date.poop_message for poop_date in last_poop_date]
+    poop_messages = Messages.query.filter_by(pooper_name='Shant').all()
+    poop_item_list =  [poop_message.poop_message for poop_message in poop_messages]
     last_poop_message = poop_item_list[-1]
     return last_poop_message
 
