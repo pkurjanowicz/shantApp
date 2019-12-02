@@ -17,6 +17,11 @@ def last_poop_date():
     last_poop_date = poop_item_list[-1]
     return last_poop_date
 
+def poop_message():
+    message = Messages.query.filter_by(pooper_name='Shant').all()
+    poop_item_list =  [poop_date.poop_message for poop_date in last_poop_date]
+    last_poop_message = poop_item_list[-1]
+    return last_poop_message
 
 def verify_shant(number):
     if number == '+12032312081' or number == "+18186068167":
@@ -38,13 +43,14 @@ def update_status():
 def render_app():
     has_shant_pooped = update_status()
     if has_shant_pooped == True:
-        return render_template('index.html', message='Yes', last_poop_date=last_poop_date())
-    return render_template('index.html', message="No", last_poop_date=last_poop_date())
+        return render_template('index.html', message='Yes', last_poop_date=last_poop_date(), poop_message=poop_message())
+    return render_template('index.html', message="No", last_poop_date=last_poop_date(), poop_message=poop_message())
 
 @app.route("/sms", methods=['GET'])
 def sms_ahoy_reply():
     number = request.args.get('From')
     body = request.args.get('Body')
+    print(body)
     if verify_shant(number):
         resp = MessagingResponse()
         resp.message("Thanks for updating your pooping status")
@@ -52,7 +58,7 @@ def sms_ahoy_reply():
         date = datetime.datetime.now(tz=pytz.utc)
         date = date.astimezone(timezone('US/Pacific'))
         date_today = date.strftime(date_format)
-        new_poop = Messages(pooper_name='Shant',poop_date=date_today)
+        new_poop = Messages(pooper_name='Shant',poop_date=date_today, poop_message=body)
         db.session.add(new_poop)
         db.session.commit()
         return str(resp)
