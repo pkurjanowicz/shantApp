@@ -7,3 +7,7 @@ body {
     flex-direction: column;
     margin: 0 5%;
 }
+
+span {
+    color:red;
+}
