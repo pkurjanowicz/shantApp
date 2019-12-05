@@ -1,16 +1,15 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, Blueprint, jsonify
 from twilio.twiml.messaging_response import MessagingResponse
 import datetime
 from models import Messages
-import os
 from db_instance import db
-import psycopg2
 from models import Messages
 import pytz
 from pytz import timezone
 
-app = Flask(__name__)
+sms_api = Blueprint('sms_api', __name__)
 
+#Helper functions
 def last_poop_date():
     last_poop_date = Messages.query.filter_by(pooper_name='Shant').all()
     poop_item_list =  [poop_date.poop_date for poop_date in last_poop_date]
@@ -43,13 +42,7 @@ def update_status():
         return False
     return True
 
-@app.route('/', methods=['GET'])
-def render_app():
-    has_shant_pooped = update_status()
-    if has_shant_pooped == True:
-        return render_template('index.html', message='Yes', last_poop_date=last_poop_date(), poop_message=poop_message(), poop_rating=poop_rating())
-    return render_template('index.html', message="No", last_poop_date=last_poop_date(), poop_message=poop_message(), poop_rating=poop_rating())
-
+#main route
 @app.route("/sms", methods=['GET'])
 def sms_ahoy_reply():
     number = request.args.get('From')
@@ -89,11 +82,4 @@ def sms_ahoy_reply():
     &ApiVersion=2010-04-01
     """
 
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql+psycopg2://{user}:{pw}@{url}/{db}".format(user=os.environ["DB_USER"],pw=os.environ["DB_PASS"],url=os.environ["DB_URL"],db=os.environ["DB_NAME"])
-with app.app_context():
-    db.init_app(app)
-    db.create_all()
 
-
-if __name__ == "__main__":
-    app.run(debug=True)

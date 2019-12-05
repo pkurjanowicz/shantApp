@@ -5,6 +5,6 @@ class Messages(db.Model):
     pooper_name = db.Column(db.String(600),nullable=False)
     poop_date = db.Column(db.String(600),nullable=False)
     poop_message = db.Column(db.String(600),nullable=False)
-    poop_rating = db.Column(db.String(600),nullable=False)
+    poop_rating = db.Column(db.String(100))
     poop_likes = db.Column(db.Integer)
     
